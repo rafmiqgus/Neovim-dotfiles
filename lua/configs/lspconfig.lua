@@ -1,6 +1,10 @@
-require("nvchad.configs.lspconfig").defaults()
+local nvchad_lsp = require "nvchad.configs.lspconfig"
+nvchad_lsp.defaults()
+local on_attach = nvchad_lsp.on_attach
+local capabilities = nvchad_lsp.capabilities
+local lspconfig = require "lspconfig"
 
-local servers = { 
+local servers = {
   clangd = {
     cmd = {
       "clangd",
@@ -9,7 +13,7 @@ local servers = {
       "--offset-encoding=utf-8",
       "--query-driver=/nix/store/*-clang-*/bin/*clang*,/nix/store/*-clang-wrapper-*/bin/clang,/nix/store/*-gcc-*/bin/*gcc*",
     },
-  }, 
+  },
   basedpyright = {
     settings = {
       basedpyright = {
@@ -22,18 +26,19 @@ local servers = {
           --   reportUnknownArgumentType = "off",
           --   reportUnknownParameterType = "off",
           -- },
-        }, 
+        },
       },
     },
-  }, 
-  nil_ls = {}, 
+  },
+  nil_ls = {},
   lua_ls = {},
   bashls = {},
 }
 
-for name, opts in pairs(servers) do  
-  vim.lsp.config(name, opts)
-  vim.lsp.enable(name)
+for name, opts in pairs(servers) do
+  opts.on_attach = on_attach
+  opts.capabilities = capabilities
+  lspconfig[name].setup(opts)
 end
 
 -- dans un plugin/override NVChad
